@@ -1,6 +1,13 @@
-from dash import Dash, dcc, html, Input, Output
+from dash import Dash, html, dcc
+import pandas as pd
+from sodapy import Socrata
 
-app = Dash(__name__) 
+client = Socrata("www.datos.gov.co", None)
+results = client.get("gt2j-8ykr", limit=2000)
+results_df = pd.DataFrame.from_records(results)
+print(results_df)
+
+app = Dash(__name__)
 
 server = app.server
 
