@@ -113,6 +113,7 @@ pio.templates.default = "plotly_white"
 tailwind_cdn = ["https://tailwindcss.com/",
                 {"src": "https://cdn.tailwindcss.com"}]
 app = Dash(__name__, external_scripts=tailwind_cdn)
+server = app.server
 app.scripts.config.serve_locally = True
 
 app.layout = html.Div(
