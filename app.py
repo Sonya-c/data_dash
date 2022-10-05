@@ -27,7 +27,7 @@ client = Socrata("www.datos.gov.co", None)
 # Luego, de ese clienete se obtienen los datos con el identificador de la base de datos
 # El identificador de la base que nos interesa es gt2j-8ykr
 # Tambien, se puede especificar el limite de datos
-data = client.get("gt2j-8ykr")
+data = client.get("gt2j-8ykr", limit=5000)
 
 # Los data frame so una estructura de datos de pandas que formadas por filas y columnas (como una tabla)
 # Podemos crear un data frame desde los datos optendios usando la función "from records"
@@ -51,12 +51,38 @@ df_group_fecha = df.groupby(["fecha_de_notificaci_n"])
 df_casos_fecha = df_group_fecha.size().reset_index(name='numero_reportes')
 
 # Lo mismo podemos hacer para obtener el número de reportes por edad
-
+# pero primero convertiremos los valores de cadena a entero 
+df.edad = df.edad.astype(int)
 df_group_edad = df.groupby(["edad"])
 df_casos_edad = df_group_edad.size().reset_index(name='numero_reportes')
 
+# OPERACIONES 
+
+# obtenermos el número de filas del dataframe con shape 
+# esta funion regresa dos valores (una vector)
+# el primer valor es el número de filas 
+# el segudo es el número de colmunas
+# como solo nos interesa el primero, vamos a acceder a el con notación de vectores
+numero_casos = len(df.index)
+
+# para hallar la medía, debemos la columna 
+# en este aso, número de reportes
+# y luego usamos la función mean 
+# de igual forma es halla la varianza
+media_casos_fecha = df_casos_fecha["numero_reportes"].mean()
+var_casos_fecha = df_casos_fecha["numero_reportes"].var()
+
+media_casos_edad = df.edad.mean()
+var_casos_edad = df.edad.var()
+
+
 # ---------------------------------------------------------------------------------------------------
 # GRAFICAR
+# Para crear una figura usamos el método px.scatter
+# este método solicita unicamente el data frame
+# pero tambein de le pueden añardir para parametros como el label de los ejes
+# el tamaño de los circulos (que puede depender de una valor del data frame"
+# además, se puede cambaiar el nombre de los labels
 
 fig_casos_fecha = px.scatter(
     df_casos_fecha,
@@ -83,6 +109,7 @@ fig_casos_edad = px.scatter(
 # Cambiar el color de las graficas
 pio.templates.default = "plotly_white"
 
+# añadir wailwind 
 tailwind_cdn = ["https://tailwindcss.com/",
                 {"src": "https://cdn.tailwindcss.com"}]
 app = Dash(__name__, external_scripts=tailwind_cdn)
@@ -90,39 +117,32 @@ app.scripts.config.serve_locally = True
 
 app.layout = html.Div(
 
-    className="min-h-screen " +  # La antura minima sea el tamaño de la pantalla
-              "font-sans " +  # Cambiar el tipo de fuente
-              "bg-indigo-50 " +  # Cambiar el dondo de pantalla
-              # poadding (espacio) superiro. Esto se hace para evitar un espaico en blanco
+    className="min-h-screen " + 
+              "font-sans " +  
+              "bg-indigo-50 " + 
               "pt-5 pb-5 ",
 
-    children=[  # Los hijos son los componentes que estan dentro de este
+    children=[ 
 
         html.Header(
-            # El encabezado (header) presenta infirmación sob re la pagina (titulo, descripción, alguna imagen, ect)
-
-            className="m-3 " +  # Margen de 3
-                      "rounded " +  # Puntas redondeadas
-                      "p-10 " +  # Padding de 10
-                      # Colo de fondo
+            className="m-3 " + 
+                      "rounded " + 
+                      "p-10 " + 
                       "bg-gradient-to-r from-indigo-500 to-sky-500 bg-clip-padding bg-opacity-20 backdrop-blur-[20px] " +
-                      "shadow-lg "  # Sombra
-                      "text-slate-50",  # Cambiar el color de texto
-
+                      "shadow-lg " 
+                      "text-slate-50",
             children=[
-
                 html.H1("Casos positivos de COVID-19 en Colombia",
-                        className="text-2xl " +  # Cambiar el tamaño del texto
-                                  "font-semibold " +  # Cambiar el grosos de la fuente
-                                  "pt-3 pb-3"  # Añadir un padding superior y un padding inferior
-                        ),
-                html.P("Inserte descripción aquí")
+                        className="text-2xl " + 
+                                  "font-semibold " + 
+                                  "pt-3 pb-3" 
+                        )
             ]
         ),
 
 
         html.Main(
-            className="m-3 ",  # Añadir un margen de 5
+            className="m-3 ",
             children=[
 
                 html.Section(
@@ -159,16 +179,24 @@ app.layout = html.Div(
                                 ),
                                 html.Table([
                                     html.Tr([
-                                        html.Td("Media de casos por día")
+                                        html.Td("Número de casos totales"),
+                                        html.Td(numero_casos)
+                                        ]),
+                                    html.Tr([
+                                        html.Td("Media de casos por día"),
+                                        html.Td(media_casos_fecha)                             
+                                        ]),
+                                    html.Tr([
+                                        html.Td("Varianza de casos por día"),
+                                        html.Td(var_casos_fecha)
+                                        ]),
+                                    html.Tr([
+                                        html.Td("Edad media"),
+                                        html.Td(media_casos_edad)
                                     ]),
                                     html.Tr([
-                                        html.Td("Varianza de casos por día")
-                                    ]),
-                                    html.Tr([
-                                        html.Td("Edad media")
-                                    ]),
-                                    html.Tr([
-                                        html.Td("Varianza edad")
+                                        html.Td("Varianza edad"),
+                                        html.Td(var_casos_edad)
                                     ])
                                 ])
                             ])
