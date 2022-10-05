@@ -148,7 +148,7 @@ app.layout = html.Div(
                 html.Section(
                     className="p-3 mb-5 bg-white border-indigo-100 rounded",
                     children=[
-                        html.H2("Número de casos por edad",
+                        html.H2("Número de casos por fecha de notificación",
                                 className="text-xl font-semibold pb-3 pt-3"),
                         dcc.Graph(
                             id="fecha-numreo-casos",
