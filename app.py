@@ -51,23 +51,23 @@ df_group_fecha = df.groupby(["fecha_de_notificaci_n"])
 df_casos_fecha = df_group_fecha.size().reset_index(name='numero_reportes')
 
 # Lo mismo podemos hacer para obtener el número de reportes por edad
-# pero primero convertiremos los valores de cadena a entero 
+# pero primero convertiremos los valores de cadena a entero
 df.edad = df.edad.astype(int)
 df_group_edad = df.groupby(["edad"])
 df_casos_edad = df_group_edad.size().reset_index(name='numero_reportes')
 
-# OPERACIONES 
+# OPERACIONES
 
-# obtenermos el número de filas del dataframe con shape 
+# obtenermos el número de filas del dataframe con shape
 # esta funion regresa dos valores (una vector)
-# el primer valor es el número de filas 
+# el primer valor es el número de filas
 # el segudo es el número de colmunas
 # como solo nos interesa el primero, vamos a acceder a el con notación de vectores
 numero_casos = len(df.index)
 
-# para hallar la medía, debemos la columna 
+# para hallar la medía, debemos la columna
 # en este aso, número de reportes
-# y luego usamos la función mean 
+# y luego usamos la función mean
 # de igual forma es halla la varianza
 media_casos_fecha = df_casos_fecha["numero_reportes"].mean()
 var_casos_fecha = df_casos_fecha["numero_reportes"].var()
@@ -109,34 +109,36 @@ fig_casos_edad = px.scatter(
 # Cambiar el color de las graficas
 pio.templates.default = "plotly_white"
 
-# añadir wailwind 
+# añadir wailwind
 tailwind_cdn = ["https://tailwindcss.com/",
                 {"src": "https://cdn.tailwindcss.com"}]
-app = Dash(__name__, external_scripts=tailwind_cdn)
+app = Dash(__name__, external_scripts=tailwind_cdn, meta_tags=[
+    {"name": "viewport", "content": "width=device-width, initial-scale=1"}
+])
 server = app.server
 app.scripts.config.serve_locally = True
 
 app.layout = html.Div(
 
-    className="min-h-screen " + 
-              "font-sans " +  
-              "bg-indigo-50 " + 
+    className="min-h-screen " +
+              "font-sans " +
+              "bg-indigo-50 " +
               "pt-5 pb-5 ",
 
-    children=[ 
+    children=[
 
         html.Header(
-            className="m-3 " + 
-                      "rounded " + 
-                      "p-10 " + 
+            className="m-3 " +
+                      "rounded " +
+                      "p-10 " +
                       "bg-gradient-to-r from-indigo-500 to-sky-500 bg-clip-padding bg-opacity-20 backdrop-blur-[20px] " +
-                      "shadow-lg " 
+                      "shadow-lg "
                       "text-slate-50",
             children=[
                 html.H1("Casos positivos de COVID-19 en Colombia",
-                        className="text-2xl " + 
-                                  "font-semibold " + 
-                                  "pt-3 pb-3" 
+                        className="text-2xl " +
+                                  "font-semibold " +
+                                  "pt-3 pb-3"
                         )
             ]
         ),
@@ -160,7 +162,7 @@ app.layout = html.Div(
 
                 html.Section([
                     html.Div(
-                        className="grid grid-cols-2 gap-4",
+                        className="grid md:grid-cols-2 gap-4",
                         children=[
                             html.Div(
                                 className="p-3 mb-3 bg-white border-indigo-100 rounded",
@@ -182,15 +184,15 @@ app.layout = html.Div(
                                     html.Tr([
                                         html.Td("Número de casos totales"),
                                         html.Td(numero_casos)
-                                        ]),
+                                    ]),
                                     html.Tr([
                                         html.Td("Media de casos por día"),
-                                        html.Td(media_casos_fecha)                             
-                                        ]),
+                                        html.Td(media_casos_fecha)
+                                    ]),
                                     html.Tr([
                                         html.Td("Varianza de casos por día"),
                                         html.Td(var_casos_fecha)
-                                        ]),
+                                    ]),
                                     html.Tr([
                                         html.Td("Edad media"),
                                         html.Td(media_casos_edad)
