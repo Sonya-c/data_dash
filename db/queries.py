@@ -6,12 +6,12 @@ def queries():
 
     db, cursor = conn()
 
-    cursor.execute("SELECT fecha_reporte_web, count(*) " + 
+    cursor.execute("SELECT fecha_reporte_web, sexo, estado, municipio, count(*) " + 
                 "FROM dbo.data " +
-                "GROUP BY fecha_reporte_web " + 
+                "GROUP BY fecha_reporte_web, sexo, estado, municipio " + 
                 "ORDER BY fecha_reporte_web ") 
     results = cursor.fetchall()
-    fecha_casos = pd.DataFrame.from_records(results, columns=["fecha", "numero_casos"])
+    fecha_casos = pd.DataFrame.from_records(results, columns=["fecha", "sexo", "estado", "municipio", "numero_casos"])
 
     cursor.execute("SELECT edad, count(*) " + 
                 "FROM dbo.data " +
