@@ -13,26 +13,26 @@ def queries():
     results = cursor.fetchall()
     fecha_casos = pd.DataFrame.from_records(results, columns=["fecha", "sexo", "estado", "municipio", "numero_casos"])
 
-    cursor.execute("SELECT edad, count(*) " + 
+    cursor.execute("SELECT edad, municipio, count(*) " + 
                 "FROM dbo.data " +
-                "GROUP BY edad " + 
+                "GROUP BY edad, municipio " + 
                 "ORDER BY edad ") 
     results = cursor.fetchall()
-    edad_casos = pd.DataFrame.from_records(results, columns=["edad", "numero_casos"])
+    edad_casos = pd.DataFrame.from_records(results, columns=["edad", "municipio", "numero_casos"])
 
-    cursor.execute("SELECT sexo, count(*) " + 
+    cursor.execute("SELECT sexo, municipio, count(*) " + 
                 "FROM dbo.data " +
-                "GROUP BY sexo " + 
+                "GROUP BY sexo, municipio " + 
                 "ORDER BY sexo ") 
     results = cursor.fetchall()
-    sexo_casos = pd.DataFrame.from_records(results, columns=["sexo", "numero_casos"])
+    sexo_casos = pd.DataFrame.from_records(results, columns=["sexo", "municipio", "numero_casos"])
 
-    cursor.execute("SELECT estado, count(*) " + 
+    cursor.execute("SELECT estado, municipio, count(*) " + 
                 "FROM dbo.data " +
-                "GROUP BY estado " + 
+                "GROUP BY estado, municipio " + 
                 "ORDER BY estado ") 
     results = cursor.fetchall()
-    estado_casos = pd.DataFrame.from_records(results, columns=["estado", "numero_casos"])
+    estado_casos = pd.DataFrame.from_records(results, columns=["estado", "municipio", "numero_casos"])
 
     cursor.close()
     db.close()

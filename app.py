@@ -17,31 +17,6 @@ app.scripts.config.serve_locally = True
 
 casos_fecha, casos_edad, casos_sexo, casos_estado = db.queries()
 
-fig_casos_sexo = px.bar(casos_sexo,
-    x="sexo",
-    y="numero_casos",
-    color='sexo',
-    labels={
-        "numero_casos": "Número de reportes"
-    }
-)
-
-fig_casos_estado = px.bar(casos_estado,
-    x="estado",
-    y="numero_casos",
-    labels={
-        "numero_casos": "Número de reportes"
-    }
-)
-
-fig_casos_edad = px.scatter(casos_edad,
-    x="edad",
-    y="numero_casos",
-    size='numero_casos',
-    labels={
-        "numero_casos": "Número de reportes"
-    }
-)
 # FRONT END
 app.layout = html.Div(
     className="min-h-screen font-sans bg-indigo-50 pt-5 pb-5 ",
@@ -108,9 +83,13 @@ app.layout = html.Div(
                                         "Casos por sexo",
                                         className="text-xl font-semibold pb-3 pt-3"
                                     ),
+                                    dcc.Dropdown(
+                                        casos_sexo["municipio"].unique(),
+                                        None,
+                                        id="dropdown-municipio-sexo"
+                                    ),
                                     dcc.Graph(
-                                        id="caso-sexo",
-                                        figure=fig_casos_sexo
+                                        id="casos-sexo"
                                     )
                                 ]
                             ), 
@@ -122,9 +101,13 @@ app.layout = html.Div(
                                         "Casos por estado",
                                         className="text-xl font-semibold pb-3 pt-3"
                                     ),
+                                    dcc.Dropdown(
+                                        casos_estado["municipio"].unique(),
+                                        None,
+                                        id="dropdown-municipio-estado"
+                                    ),
                                     dcc.Graph(
-                                        id="caso-estado",
-                                        figure=fig_casos_estado
+                                        id="casos-estado"
                                     )
                                 ]
                             )
@@ -139,9 +122,13 @@ app.layout = html.Div(
                             "Casos por edad",
                             className="text-xl font-semibold pb-3 pt-3"
                         ),
+                        dcc.Dropdown(
+                            casos_estado["municipio"].unique(),
+                            None,
+                            id="dropdown-municipio-edad"
+                        ),
                         dcc.Graph(
-                            id="casos-edad",
-                            figure=fig_casos_edad
+                            id="casos-edad"
                         )]
                     ) 
             ])
@@ -154,7 +141,7 @@ app.layout = html.Div(
     Input('dropdown-municipio', 'value'),
     Input('radio-sexo', 'value')
 )
-def update(estado, municipio, sexo):
+def update_fecha(estado, municipio, sexo):
     filter_df = casos_fecha
 
     if (municipio != None):
@@ -185,6 +172,77 @@ def update(estado, municipio, sexo):
     )
 
     return fig_casos_fecha
+
+@app.callback(
+    Output('casos-sexo', 'figure'),
+    Input('dropdown-municipio-sexo', 'value'),
+)
+def update_sexo(municipio):
+    filter_df = casos_sexo
+
+    if (municipio != None):
+        filter_df = filter_df[filter_df.municipio == municipio]
+    
+    filter_df = filter_df.groupby("sexo")["numero_casos"].sum().reset_index()
+    
+    fig_casos_sexo = px.bar(filter_df,
+        x="sexo",
+        y="numero_casos",
+        color='sexo',
+        labels={
+            "numero_casos": "Número de reportes"
+        }
+    )
+
+    return fig_casos_sexo
+
+
+@app.callback(
+    Output('casos-estado', 'figure'),
+    Input('dropdown-municipio-estado', 'value'),
+)
+def update_estado(municipio):
+    filter_df = casos_estado
+
+    if (municipio != None):
+        filter_df = filter_df[filter_df.municipio == municipio]
+    
+    filter_df = filter_df.groupby("estado")["numero_casos"].sum().reset_index()
+    
+    fig_casos_estado = px.bar(filter_df,
+        x="estado",
+        y="numero_casos",
+        labels={
+            "numero_casos": "Número de reportes"
+        }
+    )
+
+    return fig_casos_estado
+
+
+@app.callback(
+    Output('casos-edad', 'figure'),
+    Input('dropdown-municipio-edad', 'value'),
+)
+def update_edad(municipio):
+    filter_df = casos_edad
+
+    if (municipio != None):
+        filter_df = filter_df[filter_df.municipio == municipio]
+    
+    filter_df = filter_df.groupby("edad")["numero_casos"].sum().reset_index()
+    
+
+    fig_casos_edad = px.scatter(filter_df,
+        x="edad",
+        y="numero_casos",
+        size='numero_casos',
+        labels={
+            "numero_casos": "Número de reportes"
+        }
+    )
+
+    return fig_casos_edad
 
 if __name__ == '__main__':
     app.run_server(debug=True)
